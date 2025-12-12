@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống đăng ký phòng họp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input, select, button, textarea {
+            margin: 6px 0;
+            padding: 8px;
+            width: 300px;
+        }
+        .box {
+            border: 1px solid #aaa;
+            padding: 15px;
+            border-radius: 5px;
+            width: 380px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Hệ thống đăng ký phòng họp</h1>
+
+<!-- LOGIN -->
+<div class="box">
+    <h3>1. Đăng nhập bằng email</h3>
+    <input type="text" id="email" placeholder="Nhập email công ty">
+    <br>
+    <button onclick="login()">Đăng nhập</button>
+    <p id="loginStatus"></p>
+</div>
+
+<!-- CREATE MEETING -->
+<div class="box">
+    <h3>2. Tạo cuộc họp</h3>
+
+    <input id="title" placeholder="Tiêu đề cuộc họp"><br>
+    <textarea id="description" rows="3" placeholder="Mô tả agenda"></textarea><br>
+
+    <input id="start" type="datetime-local"><br>
+    <input id="end" type="datetime-local"><br>
+
+    <select id="room">
+        <option value="1">Phòng A (10 chỗ)</option>
+        <option value="2">Phòng B (20 chỗ)</option>
+        <option value="3">Phòng C (6 chỗ)</option>
+    </select><br>
+
+    <textarea id="participants" rows="3" 
+    placeholder="Danh sách email thành viên (mỗi dòng 1 email)"></textarea><br>
+
+    <button onclick="createMeeting()">Tạo cuộc họp</button>
+    <p id="createStatus"></p>
+</div>
+
+<!-- UPLOAD AGENDA -->
+<div class="box">
+    <h3>3. Upload tài liệu (Agenda)</h3>
+    <input id="meetingIdAgenda" placeholder="ID cuộc họp"><br>
+    <input id="agendaFile" type="file"><br>
+    <button onclick="uploadAgenda()">Upload Agenda</button>
+    <p id="agendaStatus"></p>
+</div>
+
+<!-- UPLOAD MINUTES -->
+<div class="box">
+    <h3>4. Upload biên bản họp (Minutes)</h3>
+    <input id="meetingIdMinutes" placeholder="ID cuộc họp"><br>
+    <input id="minutesFile" type="file"><br>
+    <button onclick="uploadMinutes()">Upload Minutes</button>
+    <p id="minutesStatus"></p>
+</div>
+
+<script>
+// ================== LOGIN KHÔNG CẦN BACKEND ==================
+
+const allowedEmails = [
+    "ttthuong0601@gmail.com",
+    "chutich@cty.com",
+    "thuky@cty.com",
+    "nv1@cty.com",
+    "nv2@cty.com"
+];
+
+let userEmail = "";
+
+function login() {
+    userEmail = document.getElementById("email").value.trim();
+
+    if (!userEmail) {
+        document.getElementById("loginStatus").innerText =
+            "❌ Vui lòng nhập email.";
+        return;
+    }
+
+    if (!allowedEmails.includes(userEmail)) {
+        document.getElementById("loginStatus").innerText =
+            "❌ Email không có quyền truy cập hệ thống.";
+        return;
+    }
+
+    document.getElementById("loginStatus").innerText =
+        "✅ Đăng nhập thành công: " + userEmail;
+}
+
+// ============== CÁC HÀM CŨ GIỮ NGUYÊN (FAKE API) ==================
+
+const API = "http://localhost:3000";  // backend để trống, nhưng code vẫn giữ nguyên
+
+async function createMeeting() {
+    if (!userEmail) {
+        document.getElementById("createStatus").innerText =
+            "❌ Bạn phải đăng nhập trước.";
+        return;
+    }
+
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const start = document.getElementById("start").value;
+    const end = document.getElementById("end").value;
+    const room = document.getElementById("room").value;
+    const participantsText = document.getElementById("participants").value;
+
+    const participantsArr = participantsText
+        .split("\n")
+        .map(e => e.trim())
+        .filter(e => e !== "")
+        .map(email => ({email: email, role: "Thành phần"}));
+
+    // Vì bạn chưa có backend, mình trả về kết quả giả lập để test UI
+    const fakeResponse = {
+        status: "success",
+        message: "Tạo cuộc họp thành công (demo)",
+        meeting_id: Math.floor(Math.random() * 10000),
+        data: {
+            title,
+            description,
+            organizer_email: userEmail,
+            room_id: parseInt(room),
+            start_time: start,
+            end_time: end,
+            participants: participantsArr
+        }
+    };
+
+    document.getElementById("createStatus").innerText =
+        JSON.stringify(fakeResponse, null, 2);
+}
+
+// ================== AGENDA (fake) ==================
+async function uploadAgenda() {
+    document.getElementById("agendaStatus").innerText =
+        "📎 Upload thành công (demo)";
+}
+
+// ================== MINUTES (fake) ==================
+async function uploadMinutes() {
+    document.getElementById("minutesStatus").innerText =
+        "📄 Upload biên bản thành công (demo)";
+}
+
+</script>
+
+</body>
+</html>
+
